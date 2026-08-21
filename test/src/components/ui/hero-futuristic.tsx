@@ -80,6 +80,9 @@ function Scene() {
   const meshRef = useRef<THREE.Mesh>(null)
   const worldRef = useRef<THREE.Group>(null)
   const orbitRef = useRef<THREE.Group>(null)
+  const particlesRef = useRef<THREE.Points>(null)
+  const gridRef = useRef<THREE.GridHelper>(null)
+  const signalRef = useRef<THREE.Mesh>(null)
 
   const particles = useMemo(() => {
     const positions = new Float32Array(360 * 3)
@@ -151,11 +154,43 @@ function Scene() {
       orbitRef.current.rotation.z = elapsed * 0.08
       orbitRef.current.rotation.y = elapsed * -0.06
     }
+
+    if (particlesRef.current) {
+      particlesRef.current.rotation.z = elapsed * -0.018
+      particlesRef.current.rotation.y = Math.sin(elapsed * 0.18) * 0.12
+      particlesRef.current.position.y = Math.sin(elapsed * 0.42) * 0.12
+    }
+
+    if (gridRef.current) {
+      gridRef.current.position.z = -1.7 + ((elapsed * 0.16) % 0.5)
+      gridRef.current.position.x = Math.sin(elapsed * 0.22) * 0.16
+    }
+
+    if (signalRef.current) {
+      const pulse = 0.82 + Math.sin(elapsed * 2.1) * 0.22
+      signalRef.current.scale.setScalar(pulse)
+      signalRef.current.rotation.x = elapsed * 0.4
+      signalRef.current.rotation.y = elapsed * 0.62
+    }
+
+    if (meshRef.current) {
+      meshRef.current.position.x = THREE.MathUtils.lerp(
+        meshRef.current.position.x,
+        cursor.x * 0.12,
+        0.025,
+      )
+      meshRef.current.position.y = THREE.MathUtils.lerp(
+        meshRef.current.position.y,
+        cursor.y * 0.08 + Math.sin(elapsed * 0.34) * 0.035,
+        0.025,
+      )
+      meshRef.current.rotation.z = Math.sin(elapsed * 0.27) * 0.008
+    }
   })
 
   return (
     <group ref={worldRef}>
-      <points>
+      <points ref={particlesRef}>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[particles, 3]} />
         </bufferGeometry>
@@ -163,6 +198,7 @@ function Scene() {
       </points>
 
       <gridHelper
+        ref={gridRef}
         args={[14, 28, '#ff3d00', '#26231f']}
         position={[0, -2.65, -1.7]}
         rotation={[0.08, 0, 0]}
@@ -177,7 +213,7 @@ function Scene() {
           <torusGeometry args={[2.42, 0.005, 6, 180]} />
           <meshBasicMaterial color="#7df9ff" transparent opacity={0.42} />
         </mesh>
-        <mesh position={[-2.05, 0.72, -0.5]} rotation={[0.3, 0.4, 0]}>
+        <mesh ref={signalRef} position={[-2.05, 0.72, -0.5]} rotation={[0.3, 0.4, 0]}>
           <icosahedronGeometry args={[0.16, 1]} />
           <meshBasicMaterial color="#f7ff00" wireframe />
         </mesh>

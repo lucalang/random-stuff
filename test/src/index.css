@@ -11,6 +11,9 @@
   --line: rgb(233 229 216 / 0.18);
   --pointer-x: 50%;
   --pointer-y: 50%;
+  --field-drift-a: 0px;
+  --field-drift-b: 0px;
+  --field-rotation: 0deg;
   font-family: 'Manrope', sans-serif;
   color: var(--paper);
   background: var(--ink);
@@ -210,6 +213,231 @@ a {
   );
   content: '';
   pointer-events: none;
+}
+
+.kinetic-field {
+  position: fixed;
+  inset: 0;
+  z-index: 9;
+  overflow: hidden;
+  pointer-events: none;
+  mix-blend-mode: difference;
+}
+
+.kinetic-field__grain {
+  position: absolute;
+  inset: -30%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.92' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.38'/%3E%3C/svg%3E");
+  opacity: 0.025;
+  animation: kinetic-grain 260ms steps(2) infinite;
+}
+
+.kinetic-field__beams,
+.kinetic-field__swarm {
+  position: absolute;
+  inset: 0;
+}
+
+.kinetic-field__beams i {
+  position: absolute;
+  right: -22vw;
+  left: -22vw;
+  height: 1px;
+  transform: rotate(-14deg) translate3d(var(--field-drift-a), 0, 0);
+}
+
+.kinetic-field__beams i:first-child {
+  top: 18%;
+}
+
+.kinetic-field__beams i:nth-child(2) {
+  top: 54%;
+  transform: rotate(9deg) translate3d(var(--field-drift-b), 0, 0);
+}
+
+.kinetic-field__beams i:last-child {
+  top: 86%;
+  transform: rotate(-5deg) translate3d(var(--field-drift-a), 0, 0);
+}
+
+.kinetic-field__beams span {
+  display: block;
+  width: 28%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgb(121 247 255 / 0.72), var(--paper), transparent);
+  box-shadow: 0 0 18px rgb(121 247 255 / 0.34);
+  animation: kinetic-beam 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.kinetic-field__beams i:nth-child(2) span {
+  width: 18%;
+  background: linear-gradient(90deg, transparent, rgb(255 61 0 / 0.84), transparent);
+  animation-duration: 11s;
+  animation-delay: -6s;
+}
+
+.kinetic-field__beams i:last-child span {
+  width: 38%;
+  animation-duration: 14s;
+  animation-delay: -3s;
+}
+
+.kinetic-field__swarm > i {
+  position: absolute;
+  top: var(--mote-y);
+  left: var(--mote-x);
+  display: block;
+  transform: translate3d(0, var(--field-drift-b), 0);
+}
+
+.kinetic-field__swarm > i:nth-child(2n) {
+  transform: translate3d(0, var(--field-drift-a), 0);
+}
+
+.kinetic-field__swarm span {
+  display: block;
+  width: var(--mote-size);
+  height: var(--mote-size);
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 10px rgb(121 247 255 / 0.7);
+  opacity: var(--mote-opacity);
+  animation: kinetic-mote var(--mote-duration) var(--mote-delay) ease-in-out infinite;
+}
+
+.kinetic-field__swarm span.is-signal {
+  border-radius: 0;
+  background: var(--signal);
+  box-shadow: 0 0 12px rgb(255 61 0 / 0.72);
+}
+
+.kinetic-field__orbit {
+  position: absolute;
+  top: var(--pointer-y);
+  left: var(--pointer-x);
+  width: 132px;
+  height: 132px;
+  border: 1px solid rgb(121 247 255 / 0.22);
+  border-radius: 50%;
+  opacity: 0.62;
+  transform: translate(-50%, -50%) rotate(var(--field-rotation));
+  transition: top 700ms cubic-bezier(0.16, 1, 0.3, 1), left 700ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kinetic-field__orbit::before,
+.kinetic-field__orbit::after {
+  position: absolute;
+  content: '';
+}
+
+.kinetic-field__orbit::before {
+  inset: 18px;
+  border: 1px dashed rgb(233 229 216 / 0.38);
+  border-radius: 50%;
+  animation: kinetic-spin 9s linear infinite reverse;
+}
+
+.kinetic-field__orbit::after {
+  top: 50%;
+  right: -16px;
+  left: -16px;
+  height: 1px;
+  background: rgb(255 61 0 / 0.54);
+}
+
+.kinetic-field__orbit > i {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--acid);
+  box-shadow: 0 0 12px var(--acid);
+}
+
+.kinetic-field__orbit > i:first-child {
+  top: 8px;
+  left: 32px;
+}
+
+.kinetic-field__orbit > i:nth-child(2) {
+  right: 9px;
+  bottom: 31px;
+  background: var(--signal);
+  box-shadow: 0 0 12px var(--signal);
+}
+
+.kinetic-field__orbit > span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  background: var(--paper);
+  transform: translate(-50%, -50%);
+}
+
+.kinetic-field__stream {
+  position: absolute;
+  top: -18rem;
+  bottom: -18rem;
+  display: flex;
+  width: 16px;
+  color: rgb(233 229 216 / 0.34);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.48rem;
+  line-height: 1;
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+}
+
+.kinetic-field__stream span {
+  flex-shrink: 0;
+  padding: 12px 0;
+  animation: kinetic-stream 13s linear infinite;
+}
+
+.kinetic-field__stream--left {
+  left: 6px;
+  transform: translateY(var(--field-drift-a));
+}
+
+.kinetic-field__stream--right {
+  right: 6px;
+  color: rgb(255 61 0 / 0.4);
+  transform: translateY(var(--field-drift-b));
+}
+
+.kinetic-field__stream--right span {
+  animation-direction: reverse;
+  animation-duration: 17s;
+}
+
+@keyframes kinetic-grain {
+  0% { transform: translate3d(-2%, 1%, 0); }
+  25% { transform: translate3d(3%, -2%, 0); }
+  50% { transform: translate3d(-1%, 3%, 0); }
+  75% { transform: translate3d(2%, 2%, 0); }
+  100% { transform: translate3d(-3%, -1%, 0); }
+}
+
+@keyframes kinetic-beam {
+  0% { transform: translateX(-40%); opacity: 0; }
+  12%, 76% { opacity: 0.62; }
+  100% { transform: translateX(410%); opacity: 0; }
+}
+
+@keyframes kinetic-mote {
+  0%, 100% { transform: translate3d(-8px, 18px, 0) scale(0.55); opacity: 0.04; }
+  36% { transform: translate3d(18px, -28px, 0) scale(1); opacity: var(--mote-opacity); }
+  68% { transform: translate3d(-14px, -62px, 0) scale(0.72); opacity: calc(var(--mote-opacity) * 0.6); }
+}
+
+@keyframes kinetic-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes kinetic-stream {
+  to { transform: translateY(-100%); }
 }
 
 .scroll-progress {
@@ -633,6 +861,13 @@ a {
   transform: translateY(0);
 }
 
+[data-depth] {
+  transform: translate3d(0, var(--depth-y, 0), 0) rotate(var(--depth-rotate, 0deg));
+  transform-origin: center;
+  transition: transform 80ms linear;
+  will-change: transform;
+}
+
 .archive-section {
   position: relative;
   z-index: 2;
@@ -643,6 +878,23 @@ a {
     linear-gradient(90deg, rgb(8 8 6 / 0.055) 1px, transparent 1px),
     var(--paper);
   background-size: 10vw 100%;
+  animation: archive-grid-drift 24s linear infinite;
+}
+
+.archive-section::after {
+  position: absolute;
+  top: 36%;
+  left: -4vw;
+  z-index: -1;
+  color: rgb(8 8 6 / 0.045);
+  content: 'LIVING / INDEX';
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(7rem, 19vw, 20rem);
+  line-height: 0.72;
+  white-space: nowrap;
+  transform: rotate(-7deg);
+  animation: archive-ghost-drift 16s ease-in-out infinite alternate;
+  pointer-events: none;
 }
 
 .section-heading {
@@ -815,6 +1067,15 @@ a {
   font-size: 3.2rem;
   font-weight: 400;
   line-height: 1;
+  animation: telemetry-breathe 2.8s ease-in-out infinite;
+}
+
+.telemetry-grid > div:nth-child(2) strong {
+  animation-delay: -900ms;
+}
+
+.telemetry-grid > div:nth-child(3) strong {
+  animation-delay: -1.8s;
 }
 
 .telemetry-grid span {
@@ -839,6 +1100,7 @@ a {
 }
 
 .signal-section {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
   gap: 6vw;
@@ -849,6 +1111,21 @@ a {
     linear-gradient(90deg, rgb(233 229 216 / 0.04) 1px, transparent 1px),
     #0a0a08;
   background-size: 64px 64px;
+  animation: signal-grid-drift 18s linear infinite;
+  overflow: hidden;
+}
+
+.signal-section::before {
+  position: absolute;
+  top: 8%;
+  right: -0.08em;
+  color: rgb(233 229 216 / 0.025);
+  content: 'SIGNAL';
+  font-family: 'Anton', sans-serif;
+  font-size: 28vw;
+  line-height: 1;
+  transform: translateX(var(--field-drift-a));
+  pointer-events: none;
 }
 
 .signal-preview {
@@ -914,6 +1191,7 @@ a {
   place-items: center;
   transform: translate(-50%, -50%);
   mix-blend-mode: difference;
+  animation: reticle-hunt 5.5s ease-in-out infinite;
 }
 
 .signal-preview__reticle::before,
@@ -1080,6 +1358,14 @@ a {
   align-self: flex-end;
 }
 
+.motion-title span {
+  animation: motion-type-breathe 4.8s ease-in-out infinite alternate;
+}
+
+.motion-title span:last-child {
+  animation-delay: -2.4s;
+}
+
 .motion-label {
   position: absolute;
   top: 32px;
@@ -1125,6 +1411,7 @@ a {
   background-size: 72px 72px;
   content: '';
   mask-image: linear-gradient(135deg, black, transparent 72%);
+  animation: manifesto-grid-drift 16s linear infinite;
 }
 
 .manifesto-shard {
@@ -1309,6 +1596,40 @@ a {
 
 @keyframes shard-float {
   50% { transform: translate(-50%, -53%) rotateX(-5deg) rotateY(15deg) rotateZ(-4deg); }
+}
+
+@keyframes archive-grid-drift {
+  to { background-position: 10vw 0; }
+}
+
+@keyframes archive-ghost-drift {
+  from { transform: translate3d(-3vw, -22px, 0) rotate(-7deg); }
+  to { transform: translate3d(9vw, 34px, 0) rotate(-4deg); }
+}
+
+@keyframes telemetry-breathe {
+  0%, 100% { color: currentColor; transform: translateY(0); }
+  48% { color: var(--signal); transform: translateY(-5px); }
+  52% { color: var(--cyan); transform: translateY(-5px); }
+}
+
+@keyframes signal-grid-drift {
+  to { background-position: 64px 64px, -64px 64px, 0 0; }
+}
+
+@keyframes reticle-hunt {
+  0%, 100% { transform: translate(-50%, -50%) rotate(0deg) scale(0.94); }
+  35% { transform: translate(-42%, -56%) rotate(90deg) scale(1.08); }
+  68% { transform: translate(-57%, -46%) rotate(180deg) scale(0.98); }
+}
+
+@keyframes motion-type-breathe {
+  from { filter: blur(0); opacity: 0.88; }
+  to { filter: blur(0.6px); opacity: 1; }
+}
+
+@keyframes manifesto-grid-drift {
+  to { background-position: 72px -72px, -72px 72px; }
 }
 
 @media (max-width: 1180px) {
@@ -1628,6 +1949,15 @@ a {
   [data-reveal] {
     opacity: 1;
     transform: none;
+  }
+
+  [data-depth] {
+    transform: none;
+    transition: none;
+  }
+
+  .kinetic-field {
+    display: none;
   }
 }
 

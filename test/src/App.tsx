@@ -12,6 +12,7 @@ import DiscoveryLayer from '@/components/ui/discovery-layer'
 import DiagonalMarqueeCarousel from '@/components/ui/great-ui-diagonal-marquee-carousel'
 import FieldMissions from '@/components/ui/field-missions'
 import HeroFuturistic from '@/components/ui/hero-futuristic'
+import KineticAtmosphere from '@/components/ui/kinetic-atmosphere'
 import NeuralPlayground from '@/components/ui/neural-playground'
 import ScrollCinema from '@/components/ui/scroll-cinema'
 import SignalGames from '@/components/ui/signal-games'
@@ -134,6 +135,7 @@ function App() {
     const cursor = cursorRef.current
     const progress = progressRef.current
     const revealTargets = document.querySelectorAll<HTMLElement>('[data-reveal]')
+    const depthTargets = document.querySelectorAll<HTMLElement>('[data-depth]')
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -156,6 +158,20 @@ function App() {
       const available = document.documentElement.scrollHeight - window.innerHeight
       const value = available > 0 ? window.scrollY / available : 0
       progress?.style.setProperty('--scroll-progress', `${value}`)
+      document.documentElement.style.setProperty('--field-drift-a', `${(window.scrollY * -0.07) % 180}px`)
+      document.documentElement.style.setProperty('--field-drift-b', `${(window.scrollY * 0.11) % 240}px`)
+      document.documentElement.style.setProperty('--field-rotation', `${value * 320}deg`)
+      depthTargets.forEach((target) => {
+        const bounds = target.getBoundingClientRect()
+        if (bounds.bottom < -160 || bounds.top > window.innerHeight + 160) return
+
+        const viewportOffset = (
+          bounds.top + bounds.height / 2 - window.innerHeight / 2
+        ) / window.innerHeight
+        const depth = Number(target.dataset.depth ?? 0)
+        target.style.setProperty('--depth-y', `${viewportOffset * depth}px`)
+        target.style.setProperty('--depth-rotate', `${viewportOffset * depth * 0.012}deg`)
+      })
       if (pagePercentRef.current) {
         pagePercentRef.current.textContent = `${Math.round(value * 100).toString().padStart(2, '0')}%`
       }
@@ -177,6 +193,7 @@ function App() {
   return (
     <main className="primate-app">
       <DiscoveryLayer />
+      <KineticAtmosphere />
       <div ref={progressRef} className="scroll-progress" aria-hidden="true" />
       <div ref={cursorRef} className="cursor-signal" aria-hidden="true" />
       <div className="page-telemetry" aria-hidden="true">
@@ -224,12 +241,12 @@ function App() {
             <span>01</span>
             <span>THE LIVING INDEX</span>
           </div>
-          <h2>
+          <h2 data-depth="-34">
             BEAUTIFUL
             <span>ANIMALS.</span>
             UNSTABLE IDEAS.
           </h2>
-          <p>
+          <p data-depth="18">
             Seven field notes on creatures who mastered collaboration, memory,
             mischief, and survival before we taught machines to imitate them.
           </p>
@@ -273,7 +290,7 @@ function App() {
       </section>
       <section id="signal" className="signal-section">
         <div className="signal-preview" data-reveal>
-          <div className="signal-preview__frame">
+          <div className="signal-preview__frame" data-depth="-42">
             <img key={specimen.id} src={specimen.image} alt={specimen.name} />
             <div className="signal-preview__reticle" aria-hidden="true">
               <ScanLine />
@@ -289,7 +306,7 @@ function App() {
             <span>02</span>
             <span>SIGNAL DIRECTORY</span>
           </div>
-          <h2>FIVE WAYS OF KNOWING.</h2>
+          <h2 data-depth="28">FIVE WAYS OF KNOWING.</h2>
           <div className="signal-list">
             {SPECIMENS.map((entry, index) => (
               <button
@@ -312,8 +329,8 @@ function App() {
       <ScrollCinema />
       <section id="motion" className="motion-section">
         <div className="motion-title" aria-hidden="true">
-          <span>KEEP</span>
-          <span>MOVING</span>
+          <span data-depth="-72">KEEP</span>
+          <span data-depth="72">MOVING</span>
         </div>
         <div className="motion-label">
           <span>04 / PERPETUAL FIELD</span>
@@ -340,12 +357,12 @@ function App() {
             <span>08</span>
             <span>FIELD MANIFESTO</span>
           </div>
-          <h2>
+          <h2 data-depth="-44">
             INSTINCT IS
             <em>OLDER</em>
             THAN CODE.
           </h2>
-          <p>
+          <p data-depth="24">
             The future does not arrive polished. It arrives breathing, watching,
             adapting. Stay strange enough to notice it.
           </p>
